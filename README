@@ -1,0 +1,47 @@
+# home-sweet-home
+
+My homepage accessed through the internet
+
+## Usage
+
+Use case: Contact Information
+
+Primary Actor: User
+Main Success Scenario
+1. User asks for Contact information
+2. System gives User Contact information compliant to german law
+
+
+Use case: Get an Article
+
+Primary Actor: User
+Main Success Scneario
+1. User asks for article by number
+2. System gives User corresponding article
+
+Exception:
+1.a Article does not exist
+2.a System gives nil to User
+
+Use case: Save an article
+
+Primary Actor: Admin
+Main Success Scenario
+Data: <Title> <Content>
+1. Admin supplies above mentioned data to sytem
+2. System integrates data
+3. System informs admin of success
+
+
+Use case: Clear blog
+
+Primary Actor: Admin
+Main Success Scenario
+1. Admin commands system to delete blog
+2. System moves all entries from blog to a backup
+
+## License
+
+Copyright (C) 2011 FIXME
+
+Distributed under the Eclipse Public License, the same as Clojure.
