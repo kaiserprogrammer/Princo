@@ -1,6 +1,6 @@
 (ns home-sweet-home.main
   (:import [home_sweet_home.core Interactor ContactInteractor BlogInteractor SaveArticleInteractor])
-  (:import [home_sweet_home.web Controller StandardController ContactPresenter BlogPresenter])
+  (:import [home_sweet_home.web Controller StandardController ContactPresenter BlogPresenter SavePresenter])
   (:use ring.adapter.jetty)
   (:use [ring.middleware reload stacktrace params]))
 
@@ -21,7 +21,8 @@
          :headers {}
          :body (.execute (StandardController. (SaveArticleInteractor.
                                                (get (:params req) "title")
-                                               (get (:params req) "content"))))}
+                                               (get (:params req) "content")
+                                               (SavePresenter.))))}
        {:status 200
         :headers {"Content-type" "text/plain"}
         :body (str req)}))))

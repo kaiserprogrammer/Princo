@@ -31,3 +31,12 @@
          "<h3>" title "</h3><br />"
          "<p>" content "</p>"
          "</body></html>")))
+
+(deftype SavePresenter []
+  Presenter
+  (present [this resp]
+    (if (:success resp)
+      (str "<html><title>Save</title><body>"
+           "<h1>Save</h1><br />"
+           "<h3>saved successfully")
+      (str "error"))))

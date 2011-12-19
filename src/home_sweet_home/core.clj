@@ -26,8 +26,9 @@
   (execute [this] (do (swap! backup concat @blog)
                       (reset! blog []))))
 
-(deftype SaveArticleInteractor [title content]
+(deftype SaveArticleInteractor [title content presenter]
   Interactor
-  (execute [this] (swap! blog conj
-                         {:title title
-                          :content content})))
+  (execute [this] (do (swap! blog conj
+                          {:title title
+                           :content content})
+                      (.present presenter {:success true}))))
