@@ -1,13 +1,8 @@
 (ns home-sweet-home.test.core
   (:use [home-sweet-home.core])
-  (:use [clojure.test])
-  (:import [home_sweet_home.core ContactInteractor BlogInteractor
-            ClearBlogInteractor SaveArticleInteractor])
-  (:import [home_sweet_home.web Presenter]))
+  (:use [clojure.test]))
 
-(deftype ConsolePresenter []
-  Presenter
-  (present [this res] res))
+(defn present-return [res] res)
 
 (def title "Title")
 (def content "content")
@@ -22,7 +17,7 @@
 (use-fixtures :each setup-and-teardown)
 
 (deftest contact-information
-  (let [impressum (execute (ContactInteractor. (ConsolePresenter.)))]
+  (let [impressum (get-contact-information present-return)]
     (are [key value] (= value (key impressum))
          :name "Jürgen Bickert"
          :street "Grafenspitz 11"
@@ -31,28 +26,28 @@
          :email "juergenbickert@gmail.com")))
 
 (deftest blog-article-not-found
-  (is (not (execute (BlogInteractor. -1 (ConsolePresenter.))))))
+  (is (not (get-article -1 present-return))))
 
 (deftest blog-articles-different
-  (execute (SaveArticleInteractor. title content (ConsolePresenter.)))
-  (execute (SaveArticleInteractor. (str title "2") content (ConsolePresenter.)))
-  (is (not (= (execute (BlogInteractor. 0 (ConsolePresenter.)))
-              (execute (BlogInteractor. 1 (ConsolePresenter.)))))))
+  (save-article title content present-return)
+  (save-article (str title "2") content present-return)
+  (is (not (= (get-article 0 present-return)
+             (get-article 1 present-return)))))
 
-(deftest clear-blog
-  (is (not (do (execute (SaveArticleInteractor. title content (ConsolePresenter.)))
-               (execute (ClearBlogInteractor.))
-               (execute (BlogInteractor. 0 (ConsolePresenter.)))))))
+(deftest clear-blog-test
+  (is (not (do  (save-article title content present-return)
+                (clear-blog)
+                (get-article 0 present-return)))))
 
 (deftest save-new-blog-article
-  (execute (ClearBlogInteractor.))
-  (is (execute (SaveArticleInteractor. title content (ConsolePresenter.))))
-  (let [blog (execute (BlogInteractor. 0 (ConsolePresenter.)))]
+  (clear-blog)
+  (save-article title content present-return)
+  (let [blog (get-article 0 present-return)]
     (is (= title (:title blog)))
     (is (= content (:content blog)))))
 
 (deftest clear-blog-saves-backup
   (is (zero? (count @backup)))
-  (execute (SaveArticleInteractor. title content (ConsolePresenter.)))
-  (execute (ClearBlogInteractor.))
+  (save-article title content present-return)
+  (clear-blog)
   (is (= 1 (count @backup))))

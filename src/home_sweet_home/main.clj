@@ -1,6 +1,6 @@
 (ns home-sweet-home.main
-  (:import [home_sweet_home.core Interactor ContactInteractor BlogInteractor SaveArticleInteractor])
-  (:import [home_sweet_home.web Controller StandardController ContactPresenter BlogPresenter SavePresenter])
+  (:use home-sweet-home.core)
+  (:use [home-sweet-home.web :only [present-contact-information present-blog]])
   (:use ring.adapter.jetty)
   (:use [ring.middleware reload stacktrace params]))
 
@@ -8,21 +8,21 @@
   (if (= (:uri req) "/impressum")
     {:status 200
      :headers {}
-     :body (.execute (StandardController. (ContactInteractor. (ContactPresenter.))))}
+     :body (get-contact-information present-contact-information)}
     (if (= (:uri req) "/blog")
       {:status 200
        :headers {}
-       :body (.execute (StandardController. (BlogInteractor.
-                                             (Integer/parseInt
-                                              (get (:params req) "article"))
-                                             (BlogPresenter.))))}
+       :body (get-article
+              (Integer/parseInt
+               (get (:params req) "article"))
+              present-blog)}
       (if (= (:uri req) "/save")
         {:status 200
          :headers {}
-         :body (.execute (StandardController. (SaveArticleInteractor.
-                                               (get (:params req) "title")
-                                               (get (:params req) "content")
-                                               (SavePresenter.))))}
+         :body (save-article
+                (get (:params req) "title")
+                (get (:params req) "content")
+                present-save)}
        {:status 200
         :headers {"Content-type" "text/plain"}
         :body (str req)}))))
