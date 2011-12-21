@@ -1,6 +1,6 @@
 (ns home-sweet-home.main
   (:use home-sweet-home.core)
-  (:use [home-sweet-home.web :only [present-contact-information present-blog]])
+  (:use [home-sweet-home.web])
   (:use ring.adapter.jetty)
   (:use [ring.middleware reload stacktrace params]))
 
