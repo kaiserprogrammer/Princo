@@ -5,6 +5,7 @@ My homepage accessed through the internet
 ## Usage
 
 Use case: Contact Information
+=============================
 
 Primary Actor: User
 Main Success Scenario
@@ -12,7 +13,15 @@ Main Success Scenario
 2. System gives User Contact information compliant to german law
 
 
+Use case: List all Articles
+===========================
+
+1. User asks for all articles
+2. System gives all articles with the article-id
+
+
 Use case: Get an Article
+========================
 
 Primary Actor: User
 Main Success Scneario
@@ -23,22 +32,23 @@ Exception:
 1.a Article does not exist
 2.a System gives nil to User
 
+
 Use case: Save an article
+=========================
 
 Primary Actor: Admin
 Main Success Scenario
 Data: <Title> <Content>
-1. Admin supplies above mentioned data to sytem
+1. Admin supplies above mentioned data to system
 2. System integrates data
-3. System informs admin of success
 
 
-Use case: Clear blog
+Use case: Change article
+========================
 
-Primary Actor: Admin
-Main Success Scenario
-1. Admin commands system to delete blog
-2. System moves all entries from blog to a backup
+Data: <Title> <Content> <Article-id>
+1. User suplies above mentioned data to system
+2. System updates corresponding article with data
 
 ## License
 

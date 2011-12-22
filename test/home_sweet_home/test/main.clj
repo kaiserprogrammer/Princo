@@ -12,6 +12,18 @@
                                           relative-link)) :title)))
        "Blog" "blog?article=0"
        "Save" "save?title=1&content=2"
-       "Impressum" "impressum"))
+       "Impressum" "impressum"
+       "Articles" "blog"
+       "Index" ""
+       "Edit Article" "edit"))
+
+(deftest linking
+  (is (= "Impressum"
+         (do (-> b
+                 (get-url "http://localhost:8080/")
+                 (find-it {:text "Impressum"})
+                 click)
+             (-> b
+                 title)))))
 
 (close b)

@@ -7,12 +7,13 @@
 (def title "Title")
 (def content "content")
 
+(defn clear-db []
+  (reset! (:blog db) []))
+
 (defn setup-and-teardown [f]
-  (reset! backup [])
-  (reset! blog [])
+  (clear-db)
   (f)
-  (reset! backup [])
-  (reset! blog []))
+  (clear-db))
 
 (use-fixtures :each setup-and-teardown)
 
@@ -34,20 +35,44 @@
   (is (not (= (get-article 0 present-return)
              (get-article 1 present-return)))))
 
-(deftest clear-blog-test
-  (is (not (do  (save-article title content present-return)
-                (clear-blog)
-                (get-article 0 present-return)))))
-
 (deftest save-new-blog-article
-  (clear-blog)
   (save-article title content present-return)
   (let [blog (get-article 0 present-return)]
     (is (= title (:title blog)))
     (is (= content (:content blog)))))
 
-(deftest clear-blog-saves-backup
-  (is (zero? (count @backup)))
+(deftest listing-all-articles
+  (save-article (str title "1") content present-return)
+  (save-article (str title "2") content present-return)
+  (save-article (str title "3") content present-return)
+  (let [listing (list-all-articles present-return)]
+    (is (= (:title (listing 0)) "Title1"))
+    (is (= (:title (listing 1)) "Title2"))))
+
+(deftest article-update-test
+  (save-article "wrong" "wrong" present-return)
+  (edit-article 0 title content present-return)
+  (let [article (get-article 0 present-return)]
+    (is (= (:title article) title))
+    (is (= (:content article) content))))
+
+(deftest article-update-test-with-missing-title
+  (save-article "Title" "wrong" present-return)
+  (edit-article 0 "" content present-return)
+  (let [article (get-article 0 present-return)]
+    (is (= (:title article) title))
+    (is (= (:content article) content))))
+
+(deftest article-update-test-with-missing-content
+  (save-article "wrong" "content" present-return)
+  (edit-article 0 title "" present-return)
+  (let [article (get-article 0 present-return)]
+    (is (= (:title article) title))
+    (is (= (:content article) content))))
+
+(deftest article-update-test-with-missing-items
   (save-article title content present-return)
-  (clear-blog)
-  (is (= 1 (count @backup))))
+  (edit-article 0 "" "" present-return)
+  (let [article (get-article 0 present-return)]
+    (is (= (:title article) title))
+    (is (= (:content article) content))))
