@@ -52,3 +52,11 @@
        (update-article db article-id new-title new-content)
        (presenter {:title new-title
                    :content new-content})))))
+
+(defn search-for-article [search-word presenter]
+  (let [articles (retrieve-all-articles db)]
+    (presenter
+     (filter #(re-find (re-pattern search-word) (str (:title %) (:content %)))
+             (map-indexed (fn [idx article]
+                            (assoc article :article-id idx))
+                          articles)))))

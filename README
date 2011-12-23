@@ -50,6 +50,14 @@ Data: <Title> <Content> <Article-id>
 1. User suplies above mentioned data to system
 2. System updates corresponding article with data
 
+
+Use case: Search for an article
+===============================
+
+Data: <word>
+1. User searches for a word matching article title
+2. System returns possible solutions by relevance
+
 ## License
 
 Copyright (C) 2011 FIXME

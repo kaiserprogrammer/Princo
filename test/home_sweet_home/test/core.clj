@@ -76,3 +76,30 @@
   (let [article (get-article 0 present-return)]
     (is (= (:title article) title))
     (is (= (:content article) content))))
+
+(deftest search-for-one-matching-article-test
+  (save-article "wrong" content present-return)
+  (save-article title content present-return)
+  (let [articles (search-for-article title present-return)]
+    (is (= 1 (count articles)))
+    (is (= 1 (:article-id (first articles))))
+    (is (= title (:title (first articles))))
+    (is (= content (:content (first articles))))))
+
+(deftest search-for-two-matching-articles-test
+  (save-article "wrong" content present-return)
+  (save-article title content present-return)
+  (save-article (str title 2) (str content 2) present-return)
+  (let [articles (search-for-article title present-return)]
+    (is (= 2 (count articles)))
+    (is (= 1 (:article-id (first articles))))
+    (is (= 2 (:article-id (second articles))))))
+
+(deftest search-for-words-matching-title-and-content
+  (save-article "wrong" "wrong" present-return)
+  (save-article "wrong" (str content title content) present-return)
+  (save-article title "wrong" present-return)
+  (let [articles (search-for-article title present-return)]
+    (is (= 2 (count articles)))
+    (is (= 1 (:article-id (first articles))))
+    (is (= 2 (:article-id (second articles))))))
