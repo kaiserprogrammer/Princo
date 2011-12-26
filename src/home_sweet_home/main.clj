@@ -5,11 +5,12 @@
   (:use [ring.middleware reload stacktrace params]))
 
 (def get-request-handlers
-  {"/" present-index-page
-   "/impressum" get-contact-information
-   "/blog" list-all-articles
-   "/save" save-article
-   "/edit" get-article})
+  {"/" {:interactor present-index-page}
+   "/impressum" {:interactor get-contact-information}
+   "/blog" {:interactor list-all-articles}
+   "/save" {:interactor save-article}
+   "/edit" {:interactor get-article}
+   "/article" {:interactor get-article}})
 
 (defn edit-article-request [req]
   {:id 0
@@ -36,26 +37,26 @@
         (:presenter (post-request-handlers "/edit")))
        (let [handle (get-request-handlers (:uri req))]
          (if (= (:uri req) "/")
-          (handle {"Impressum" "/impressum"
-                                       "Blog" "/blog"})
-          (if (= (:uri req) "/impressum")
-            (handle present-contact-information)
-            (if (= (:uri req) "/blog")
-              (if-let [article-id (get (:params req) "article")]
-                (get-article
-                 (Integer/parseInt article-id)
-                 present-blog)
-                ((get-request-handlers "/blog") present-all-articles))
-              (if (= (:uri req) "/save")
-                (handle
-                    {:title (get (:params req) "title")
-                     :content (get (:params req) "content")}
-                 present-save)
-                (if (= (:uri req) "/edit")
-                  (handle
-                   0
-                   present-edit-article)
-                  (when (and (= :post (:request-method req)) (= (:uri req) "/edit"))))))))))}))
+           ((:interactor handle) {"Impressum" "/impressum"
+                      "Blog" "/blog"})
+           (if (= (:uri req) "/impressum")
+             ((:interactor handle) present-contact-information)
+             (if (= (:uri req) "/blog")
+               ((:interactor handle) present-all-articles)
+               (if (= (:uri req) "/article")
+                 ((:interactor handle)
+                     (Integer/parseInt (get (:params req) "id"))
+                   present-blog)
+                 (if (= (:uri req) "/save")
+                   ((:interactor handle)
+                       {:title (get (:params req) "title")
+                        :content (get (:params req) "content")}
+                     present-save)
+                   (if (= (:uri req) "/edit")
+                     ((:interactor handle)
+                         0
+                       present-edit-article)
+                     (when (and (= :post (:request-method req)) (= (:uri req) "/edit")))))))))))}))
 
 (def app
   (-> #'handler

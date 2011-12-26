@@ -28,11 +28,11 @@
 (deftest present-list-all-articles
   (is (re-find #"(?i)no articles" (present-all-articles [])))
   (let [listing (present-all-articles [{:title "Title" :content "blank"}])]
-    (is (re-find #"<a href=\"blog\?article=0\">Title</a>" listing)))
+    (is (re-find #"<a href=\"article\?id=0\">Title</a>" listing)))
   (let [listing (present-all-articles [{:title "Title" :content "blank"}
                                        {:title "Title2" :content "blank"}])]
-    (is (re-find #"<a href=\"blog\?article=0\">Title</a>" listing))
-    (is (re-find #"<a href=\"blog\?article=1\">Title2</a>" listing))))
+    (is (re-find #"<a href=\"article\?id=0\">Title</a>" listing))
+    (is (re-find #"<a href=\"article\?id=1\">Title2</a>" listing))))
 
 (deftest present-index-page-test
   (is (re-find #"(?i)index" (present-index-page {})))

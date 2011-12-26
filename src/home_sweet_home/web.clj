@@ -6,7 +6,7 @@
        "</body></html>"))
 
 (defn link-to-article [id text]
-  (str "<a href=\"blog?article=" id "\">" text "</a>"))
+  (str "<a href=\"article?id=" id "\">" text "</a>"))
 
 (defn present-contact-information [{:keys [name street city phone email]}]
   (default-page

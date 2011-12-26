@@ -10,8 +10,8 @@
                 (text
                  (find-it (get-url b (str "http://localhost:8080/"
                                           relative-link)) :title)))
-       "Blog" "blog?article=0"
-       "Save" "save?title=1&content=2"
+       "Blog" "article?id=0"
+       "Save" "save?title=Title&content=content"
        "Impressum" "impressum"
        "Articles" "blog"
        "Index" ""
