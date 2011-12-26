@@ -11,6 +11,9 @@
    "/save" save-article
    "/edit" get-article})
 
+(def post-request-handlers
+  {"/edit" edit-article})
+
 (defn handler [req]
   (if (not (get-request-handlers (:uri req)))
     {:status 200
@@ -20,7 +23,7 @@
      :headers {}
      :body
      (if (= :post (:request-method req))
-       (edit-article 0
+       ((post-request-handlers "/edit") 0
                      (get (:params req) "new-title")
                      (get (:params req) "new-content")
                      present-blog)
