@@ -5,12 +5,19 @@
   (:use [ring.middleware reload stacktrace params]))
 
 (def get-request-handlers
-  {"/" {:interactor (fn [req presenter] (presenter req))}
+  {"/" {:interactor (fn [req presenter] (presenter req))
+        :controller (fn [req] {"Impressum" "/impressum"
+                              "Blog" "/blog"})}
    "/impressum" {:interactor get-contact-information}
    "/blog" {:interactor list-all-articles}
-   "/save" {:interactor save-article}
-   "/edit" {:interactor get-article}
-   "/article" {:interactor get-article}})
+   "/article" {:interactor get-article
+               :controller #(Integer/parseInt (get (:params %) "id"))}
+   "/save" {:interactor save-article
+            :controller (fn [req]
+                          {:title (get (:params req) "title")
+                           :content (get (:params req) "content")})}
+   "/edit" {:interactor get-article
+            :controller #(Integer/parseInt (get (:params %) "id"))}})
 
 (defn edit-article-request [req]
   {:id 0
@@ -40,26 +47,23 @@
              controller (:controller handle)
              presenter (:controller handle)]
          (if (= (:uri req) "/")
-           (interactor {"Impressum" "/impressum"
-                        "Blog" "/blog"}
-                       present-index-page)
+           (interactor (controller req) present-index-page)
            (if (= (:uri req) "/impressum")
              (interactor present-contact-information)
              (if (= (:uri req) "/blog")
                (interactor present-all-articles)
                (if (= (:uri req) "/article")
                  (interactor
-                     (Integer/parseInt (get (:params req) "id"))
-                   present-blog)
+                  (controller req)
+                  present-blog)
                  (if (= (:uri req) "/save")
                    (interactor
-                       {:title (get (:params req) "title")
-                        :content (get (:params req) "content")}
+                    (controller req)
                      present-save)
                    (if (= (:uri req) "/edit")
                      (interactor
-                         0
-                         present-edit-article)
+                      (controller req)
+                      present-edit-article)
                      nil))))))))}))
 
 (def app

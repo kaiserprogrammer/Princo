@@ -15,7 +15,7 @@
        "Impressum" "impressum"
        "Articles" "blog"
        "Index" ""
-       "Edit Article" "edit"))
+       "Edit Article" "edit?id=0"))
 
 (deftest linking
   (is (= "Impressum"
