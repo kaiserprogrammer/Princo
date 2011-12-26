@@ -35,8 +35,19 @@
             :presenter present-blog}})
 
 
+(defn handler-call [handle req]
+  (let [interactor (if-let [interactor (:interactor handle)]
+                     interactor
+                     (fn [req presenter] (presenter req)))
+        controller (:controller handle)
+        presenter (:presenter handle)]
+    (if controller
+      (interactor (controller req) presenter)
+      (interactor presenter))))
+
 (defn handler [req]
-  (if (not (get-request-handlers (:uri req)))
+  (if (not (or (get-request-handlers (:uri req))
+               (post-request-handlers (:uri req))))
     {:status 200
      :headers {"Content-type" "text/plain"}
      :body (str req)}
@@ -44,20 +55,8 @@
      :headers {}
      :body
      (if (= :post (:request-method req))
-       ((:interactor (post-request-handlers "/edit"))
-        ((:controller (post-request-handlers "/edit")) req)
-        (:presenter (post-request-handlers "/edit")))
-       (let [handle (get-request-handlers (:uri req))
-             interactor (if-let [interactor (:interactor handle)]
-                          interactor
-                          (fn [req presenter] (presenter req)))
-             controller (:controller handle)
-             presenter (:presenter handle)]
-         (if controller
-           (interactor (controller req) presenter)
-           (if presenter
-             (interactor presenter)
-             nil))))}))
+       (handler-call (post-request-handlers (:uri req)) req)
+       (handler-call (get-request-handlers (:uri req)) req))}))
 
 (def app
   (-> #'handler
