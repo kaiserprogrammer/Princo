@@ -34,27 +34,28 @@
        ((:interactor (post-request-handlers "/edit"))
         ((:controller (post-request-handlers "/edit")) req)
         (:presenter (post-request-handlers "/edit")))
-       (if (= (:uri req) "/")
-         ((get-request-handlers "/") {"Impressum" "/impressum"
-                                      "Blog" "/blog"})
-         (if (= (:uri req) "/impressum")
-           ((get-request-handlers "/impressum") present-contact-information)
-           (if (= (:uri req) "/blog")
-             (if-let [article-id (get (:params req) "article")]
-               (get-article
-                (Integer/parseInt article-id)
-                present-blog)
-               ((get-request-handlers "/blog") present-all-articles))
-             (if (= (:uri req) "/save")
-               ((get-request-handlers "/save")
-                (get (:params req) "title")
-                (get (:params req) "content")
-                present-save)
-               (if (and (= :get (:request-method req)) (= (:uri req) "/edit"))
-                 ((get-request-handlers "/edit")
-                  0
-                  present-edit-article)
-                 (when (and (= :post (:request-method req)) (= (:uri req) "/edit")))))))))}))
+       (let [handle (get-request-handlers (:uri req))]
+         (if (= (:uri req) "/")
+          (handle {"Impressum" "/impressum"
+                                       "Blog" "/blog"})
+          (if (= (:uri req) "/impressum")
+            (handle present-contact-information)
+            (if (= (:uri req) "/blog")
+              (if-let [article-id (get (:params req) "article")]
+                (get-article
+                 (Integer/parseInt article-id)
+                 present-blog)
+                ((get-request-handlers "/blog") present-all-articles))
+              (if (= (:uri req) "/save")
+                (handle
+                 (get (:params req) "title")
+                 (get (:params req) "content")
+                 present-save)
+                (if (= (:uri req) "/edit")
+                  (handle
+                   0
+                   present-edit-article)
+                  (when (and (= :post (:request-method req)) (= (:uri req) "/edit"))))))))))}))
 
 (def app
   (-> #'handler
