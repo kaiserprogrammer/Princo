@@ -23,9 +23,11 @@
 
 (def db (InMemoryDB. (atom [])))
 
-(defn save-article [title content presenter]
-  (do (create-article db title content)
-      (presenter {:success true})))
+(defn save-article [article presenter]
+  (let [title (:title article)
+        content (:content article)]
+   (do (create-article db title content)
+       (presenter {:success true}))))
 
 (defn get-article [article-id presenter]
   (presenter
