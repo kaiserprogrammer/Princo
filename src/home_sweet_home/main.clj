@@ -55,8 +55,8 @@
                    (if (= (:uri req) "/edit")
                      ((:interactor handle)
                          0
-                       present-edit-article)
-                     (when (and (= :post (:request-method req)) (= (:uri req) "/edit")))))))))))}))
+                         present-edit-article)
+                     nil))))))))}))
 
 (def app
   (-> #'handler
