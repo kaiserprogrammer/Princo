@@ -43,15 +43,18 @@
 (defn list-all-articles [presenter]
   (presenter (retrieve-all-articles db)))
 
-(defn edit-article [article-id new-title new-content presenter]
-  (if (empty? new-title)
-    (edit-article article-id (:title (retrieve-article db article-id)) new-content presenter)
-    (if (empty? new-content)
-      (edit-article article-id new-title (:content (retrieve-article db article-id)) presenter)
-      (do
-       (update-article db article-id new-title new-content)
-       (presenter {:title new-title
-                   :content new-content})))))
+(defn edit-article [article presenter]
+  (let [article-id (:id article)
+        new-title (:title article)
+        new-content (:content article)]
+   (if (empty? new-title)
+     (edit-article (assoc article :title (:title (retrieve-article db article-id))) presenter)
+     (if (empty? new-content)
+       (edit-article (assoc article :content (:content (retrieve-article db article-id))) presenter)
+       (do
+         (update-article db article-id new-title new-content)
+         (presenter {:title new-title
+                     :content new-content}))))))
 
 (defn search-for-article [search-word presenter]
   (let [articles (retrieve-all-articles db)]

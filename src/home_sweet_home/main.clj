@@ -11,8 +11,16 @@
    "/save" save-article
    "/edit" get-article})
 
+(defn edit-article-request [req]
+  {:id 0
+   :title (get (:params req) "new-title")
+   :content (get (:params req) "new-content")})
+
 (def post-request-handlers
-  {"/edit" edit-article})
+  {"/edit" {:interactor edit-article
+            :controller edit-article-request
+            :presenter present-blog}})
+
 
 (defn handler [req]
   (if (not (get-request-handlers (:uri req)))
@@ -23,10 +31,9 @@
      :headers {}
      :body
      (if (= :post (:request-method req))
-       ((post-request-handlers "/edit") 0
-                     (get (:params req) "new-title")
-                     (get (:params req) "new-content")
-                     present-blog)
+       ((:interactor (post-request-handlers "/edit"))
+        ((:controller (post-request-handlers "/edit")) req)
+        (:presenter (post-request-handlers "/edit")))
        (if (= (:uri req) "/")
          ((get-request-handlers "/") {"Impressum" "/impressum"
                                       "Blog" "/blog"})
@@ -47,7 +54,7 @@
                  ((get-request-handlers "/edit")
                   0
                   present-edit-article)
-                 (if (and (= :post (:request-method req)) (= (:uri req) "/edit")))))))))}))
+                 (when (and (= :post (:request-method req)) (= (:uri req) "/edit")))))))))}))
 
 (def app
   (-> #'handler

@@ -51,28 +51,28 @@
 
 (deftest article-update-test
   (save-article "wrong" "wrong" present-return)
-  (edit-article 0 title content present-return)
+  (edit-article {:id 0 :title title :content content} present-return)
   (let [article (get-article 0 present-return)]
     (is (= (:title article) title))
     (is (= (:content article) content))))
 
 (deftest article-update-test-with-missing-title
   (save-article "Title" "wrong" present-return)
-  (edit-article 0 "" content present-return)
+  (edit-article {:id 0 :title "" :content content} present-return)
   (let [article (get-article 0 present-return)]
     (is (= (:title article) title))
     (is (= (:content article) content))))
 
 (deftest article-update-test-with-missing-content
   (save-article "wrong" "content" present-return)
-  (edit-article 0 title "" present-return)
+  (edit-article {:id 0 :title title :content ""} present-return)
   (let [article (get-article 0 present-return)]
     (is (= (:title article) title))
     (is (= (:content article) content))))
 
 (deftest article-update-test-with-missing-items
   (save-article title content present-return)
-  (edit-article 0 "" "" present-return)
+  (edit-article {:id 0 :title "" :content ""} present-return)
   (let [article (get-article 0 present-return)]
     (is (= (:title article) title))
     (is (= (:content article) content))))
