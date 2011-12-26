@@ -48,8 +48,8 @@
                 ((get-request-handlers "/blog") present-all-articles))
               (if (= (:uri req) "/save")
                 (handle
-                 (get (:params req) "title")
-                 (get (:params req) "content")
+                    {:title (get (:params req) "title")
+                     :content (get (:params req) "content")}
                  present-save)
                 (if (= (:uri req) "/edit")
                   (handle
