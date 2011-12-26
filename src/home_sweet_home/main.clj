@@ -5,7 +5,7 @@
   (:use [ring.middleware reload stacktrace params]))
 
 (def get-request-handlers
-  {"/" {:interactor present-index-page}
+  {"/" {:interactor (fn [req presenter] (presenter req))}
    "/impressum" {:interactor get-contact-information}
    "/blog" {:interactor list-all-articles}
    "/save" {:interactor save-article}
@@ -35,25 +35,29 @@
        ((:interactor (post-request-handlers "/edit"))
         ((:controller (post-request-handlers "/edit")) req)
         (:presenter (post-request-handlers "/edit")))
-       (let [handle (get-request-handlers (:uri req))]
+       (let [handle (get-request-handlers (:uri req))
+             interactor (:interactor handle)
+             controller (:controller handle)
+             presenter (:controller handle)]
          (if (= (:uri req) "/")
-           ((:interactor handle) {"Impressum" "/impressum"
-                      "Blog" "/blog"})
+           (interactor {"Impressum" "/impressum"
+                        "Blog" "/blog"}
+                       present-index-page)
            (if (= (:uri req) "/impressum")
-             ((:interactor handle) present-contact-information)
+             (interactor present-contact-information)
              (if (= (:uri req) "/blog")
-               ((:interactor handle) present-all-articles)
+               (interactor present-all-articles)
                (if (= (:uri req) "/article")
-                 ((:interactor handle)
+                 (interactor
                      (Integer/parseInt (get (:params req) "id"))
                    present-blog)
                  (if (= (:uri req) "/save")
-                   ((:interactor handle)
+                   (interactor
                        {:title (get (:params req) "title")
                         :content (get (:params req) "content")}
                      present-save)
                    (if (= (:uri req) "/edit")
-                     ((:interactor handle)
+                     (interactor
                          0
                          present-edit-article)
                      nil))))))))}))
