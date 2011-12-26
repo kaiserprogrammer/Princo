@@ -4,7 +4,7 @@
   (:use ring.adapter.jetty)
   (:use [ring.middleware reload stacktrace params]))
 
-(def request-handlers
+(def get-request-handlers
   {"/" present-index-page
    "/impressum" get-contact-information
    "/blog" list-all-articles
@@ -12,46 +12,39 @@
    "/edit" get-article})
 
 (defn handler [req]
-  (if (= (:uri req) "/")
+  (if (not (get-request-handlers (:uri req)))
+    {:status 200
+     :headers {"Content-type" "text/plain"}
+     :body (str req)}
     {:status 200
      :headers {}
-     :body ((request-handlers "/") {"Impressum" "/impressum"
-                                    "Blog" "/blog"})}
-    (if (= (:uri req) "/impressum")
-     {:status 200
-      :headers {}
-      :body ((request-handlers "/impressum") present-contact-information)}
-     (if (= (:uri req) "/blog")
-       {:status 200
-        :headers {}
-        :body (if-let [article-id (get (:params req) "article")]
-                (get-article
-                 (Integer/parseInt article-id)
-                 present-blog)
-                ((request-handlers "/blog") present-all-articles))}
-       (if (= (:uri req) "/save")
-         {:status 200
-          :headers {}
-          :body ((request-handlers "/save")
-                 (get (:params req) "title")
-                 (get (:params req) "content")
-                 present-save)}
-         (if (and (= :get (:request-method req)) (= (:uri req) "/edit"))
-           {:status 200
-            :headers {}
-            :body ((request-handlers "/edit")
-                   0
-                   present-edit-article)}
-           (if (and (= :post (:request-method req)) (= (:uri req) "/edit"))
-             {:status 200
-              :headers {}
-              :body (edit-article 0
-                                  (get (:params req) "new-title")
-                                  (get (:params req) "new-content")
-                                  present-blog)}
-             {:status 200
-             :headers {"Content-type" "text/plain"}
-             :body (str req)})))))))
+     :body
+     (if (= :post (:request-method req))
+       (edit-article 0
+                     (get (:params req) "new-title")
+                     (get (:params req) "new-content")
+                     present-blog)
+       (if (= (:uri req) "/")
+         ((get-request-handlers "/") {"Impressum" "/impressum"
+                                      "Blog" "/blog"})
+         (if (= (:uri req) "/impressum")
+           ((get-request-handlers "/impressum") present-contact-information)
+           (if (= (:uri req) "/blog")
+             (if-let [article-id (get (:params req) "article")]
+               (get-article
+                (Integer/parseInt article-id)
+                present-blog)
+               ((get-request-handlers "/blog") present-all-articles))
+             (if (= (:uri req) "/save")
+               ((get-request-handlers "/save")
+                (get (:params req) "title")
+                (get (:params req) "content")
+                present-save)
+               (if (and (= :get (:request-method req)) (= (:uri req) "/edit"))
+                 ((get-request-handlers "/edit")
+                  0
+                  present-edit-article)
+                 (if (and (= :post (:request-method req)) (= (:uri req) "/edit")))))))))}))
 
 (def app
   (-> #'handler
