@@ -4,16 +4,23 @@
   (:use ring.adapter.jetty)
   (:use [ring.middleware reload stacktrace params]))
 
+(def request-handlers
+  {"/" present-index-page
+   "/impressum" get-contact-information
+   "/blog" list-all-articles
+   "/save" save-article
+   "/edit" get-article})
+
 (defn handler [req]
   (if (= (:uri req) "/")
     {:status 200
      :headers {}
-     :body (present-index-page {"Impressum" "/impressum"
-                                "Blog" "/blog"})}
+     :body ((request-handlers "/") {"Impressum" "/impressum"
+                                    "Blog" "/blog"})}
     (if (= (:uri req) "/impressum")
      {:status 200
       :headers {}
-      :body (get-contact-information present-contact-information)}
+      :body ((request-handlers "/impressum") present-contact-information)}
      (if (= (:uri req) "/blog")
        {:status 200
         :headers {}
@@ -21,18 +28,18 @@
                 (get-article
                  (Integer/parseInt article-id)
                  present-blog)
-                (list-all-articles present-all-articles))}
+                ((request-handlers "/blog") present-all-articles))}
        (if (= (:uri req) "/save")
          {:status 200
           :headers {}
-          :body (save-article
+          :body ((request-handlers "/save")
                  (get (:params req) "title")
                  (get (:params req) "content")
                  present-save)}
          (if (and (= :get (:request-method req)) (= (:uri req) "/edit"))
            {:status 200
             :headers {}
-            :body (get-article
+            :body ((request-handlers "/edit")
                    0
                    present-edit-article)}
            (if (and (= :post (:request-method req)) (= (:uri req) "/edit"))
