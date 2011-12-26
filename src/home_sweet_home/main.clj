@@ -5,19 +5,24 @@
   (:use [ring.middleware reload stacktrace params]))
 
 (def get-request-handlers
-  {"/" {:interactor (fn [req presenter] (presenter req))
-        :controller (fn [req] {"Impressum" "/impressum"
-                              "Blog" "/blog"})}
-   "/impressum" {:interactor get-contact-information}
-   "/blog" {:interactor list-all-articles}
+  {"/" {:controller (fn [req] {"Impressum" "/impressum"
+                              "Blog" "/blog"})
+        :presenter present-index-page}
+   "/impressum" {:interactor get-contact-information
+                 :presenter present-contact-information}
+   "/blog" {:interactor list-all-articles
+            :presenter present-all-articles}
    "/article" {:interactor get-article
-               :controller #(Integer/parseInt (get (:params %) "id"))}
+               :controller #(Integer/parseInt (get (:params %) "id"))
+               :presenter present-blog}
    "/save" {:interactor save-article
             :controller (fn [req]
                           {:title (get (:params req) "title")
-                           :content (get (:params req) "content")})}
+                           :content (get (:params req) "content")})
+            :presenter present-save}
    "/edit" {:interactor get-article
-            :controller #(Integer/parseInt (get (:params %) "id"))}})
+            :controller #(Integer/parseInt (get (:params %) "id"))
+            :presenter present-edit-article}})
 
 (defn edit-article-request [req]
   {:id 0
@@ -43,28 +48,16 @@
         ((:controller (post-request-handlers "/edit")) req)
         (:presenter (post-request-handlers "/edit")))
        (let [handle (get-request-handlers (:uri req))
-             interactor (:interactor handle)
+             interactor (if-let [interactor (:interactor handle)]
+                          interactor
+                          (fn [req presenter] (presenter req)))
              controller (:controller handle)
-             presenter (:controller handle)]
-         (if (= (:uri req) "/")
-           (interactor (controller req) present-index-page)
-           (if (= (:uri req) "/impressum")
-             (interactor present-contact-information)
-             (if (= (:uri req) "/blog")
-               (interactor present-all-articles)
-               (if (= (:uri req) "/article")
-                 (interactor
-                  (controller req)
-                  present-blog)
-                 (if (= (:uri req) "/save")
-                   (interactor
-                    (controller req)
-                     present-save)
-                   (if (= (:uri req) "/edit")
-                     (interactor
-                      (controller req)
-                      present-edit-article)
-                     nil))))))))}))
+             presenter (:presenter handle)]
+         (if controller
+           (interactor (controller req) presenter)
+           (if presenter
+             (interactor presenter)
+             nil))))}))
 
 (def app
   (-> #'handler
