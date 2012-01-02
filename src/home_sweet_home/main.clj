@@ -21,7 +21,7 @@
                            :content (get (:params req) "content")})
             :presenter present-save}
    "/edit" {:interactor get-article
-            :controller #(Integer/parseInt (get (:params %) "id"))
+            :controller #(Integer/parseInt (or (get (:params %) "id") "-1"))
             :presenter present-edit-article}})
 
 (defn edit-article-request [req]

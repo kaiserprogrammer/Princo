@@ -10,7 +10,8 @@
 (defrecord InMemoryDB [blog]
     EntityGateway
     (retrieve-article [this id]
-      (@blog id))
+      (when (and (< id (.length @blog)) (>= id 0))
+        (@blog id)))
     (create-article [this title content]
       (swap! blog conj {:title title
                         :content content}))
@@ -27,16 +28,17 @@
   (let [title (:title article)
         content (:content article)]
    (do (create-article db title content)
-       (presenter {:success true}))))
+       (presenter {:title title
+                   :content content
+                   :success true}))))
 
 (defn get-article [article-id presenter]
   (presenter
-   (when (and (>= article-id 0))
-     (if (< article-id (count-articles db))
-       (assoc (retrieve-article db article-id) :id article-id)
-       {:id (count-articles db)
-        :title ""
-        :content ""}))))
+   (if-let [article (retrieve-article db article-id)]
+     (assoc article :id article-id)
+     {:id (count-articles db)
+      :title ""
+      :content ""})))
 
 (defn get-contact-information [presenter]
   (presenter
@@ -53,16 +55,16 @@
   (let [article-id (:id article)
         new-title (:title article)
         new-content (:content article)]
-    (when-not (>= article-id (count-articles db))
-      (save-article article presenter))
-    (if (empty? new-title)
-      (edit-article (assoc article :title (:title (retrieve-article db article-id))) presenter)
-      (if (empty? new-content)
-        (edit-article (assoc article :content (:content (retrieve-article db article-id))) presenter)
-        (do
-          (update-article db article-id new-title new-content)
-          (presenter {:title new-title
-                      :content new-content}))))))
+    (if-let [current-article (retrieve-article db article-id)]
+      (if (empty? new-title)
+        (edit-article (assoc article :title (:title current-article)) presenter)
+        (if (empty? new-content)
+          (edit-article (assoc article :content (:content current-article)) presenter)
+          (do
+            (update-article db article-id new-title new-content)
+            (presenter {:title new-title
+                        :content new-content}))))
+      (save-article article presenter))))
 
 (defn search-for-article [search-word presenter]
   (let [articles (retrieve-all-articles db)]
