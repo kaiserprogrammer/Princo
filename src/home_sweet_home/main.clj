@@ -2,7 +2,10 @@
   (:use home-sweet-home.core)
   (:use [home-sweet-home.web])
   (:use ring.adapter.jetty)
-  (:use [ring.middleware reload stacktrace params]))
+  (:use [ring.middleware reload stacktrace params])
+  (:import home_sweet_home.gateway.InMemoryDB))
+
+(def db (InMemoryDB. (atom [])))
 
 (def get-request-handlers
   {"/" {:controller (fn [req] {"Impressum" "/impressum"
@@ -38,12 +41,12 @@
 (defn handler-call [handle req]
   (let [interactor (if-let [interactor (:interactor handle)]
                      interactor
-                     (fn [req presenter] (presenter req)))
+                     (fn [req presenter db] (presenter req)))
         controller (:controller handle)
         presenter (:presenter handle)]
     (if controller
-      (interactor (controller req) presenter)
-      (interactor presenter))))
+      (interactor (controller req) presenter db)
+      (interactor presenter db))))
 
 (defn handler [req]
   (if (not (or (get-request-handlers (:uri req))
