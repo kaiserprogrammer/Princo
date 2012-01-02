@@ -7,7 +7,7 @@
          [:body text]]))
 
 (defn link-to-article [id text]
-  (str "<a href=\"article?id=" id "\">" text "</a>"))
+  (html [:a {:href (str "article?id=" id)} text]))
 
 (defn present-contact-information [{:keys [name street city phone email]}]
   (default-page
@@ -49,7 +49,7 @@
       (if (empty? res)
         [:h3 "No articles yet."]
         (apply str (map-indexed (fn [idx article]
-                                  (link-to-article idx (:title article)))
+                                  (html (link-to-article idx (:title article)) [:br]))
                                 res))))}))
 
 (defn present-index-page [res]
@@ -57,7 +57,8 @@
     {:title "Index"
      :text
      (str (apply str (map (fn [[title link]]
-                            (html [:a {:href link} title]))
+                            (html [:a {:href link} title]
+                                  [:br]))
                           res)))}))
 
 (defn present-edit-article [res]
