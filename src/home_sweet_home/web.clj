@@ -1,9 +1,10 @@
-(ns home-sweet-home.web)
+(ns home-sweet-home.web
+  (:use [hiccup core form-helpers]))
 
 (defn default-page [{:keys [title text]}]
-  (str "<html><title>" title "</title><body>"
-       text
-       "</body></html>"))
+  (html [:html
+         [:title title]
+         [:body text]]))
 
 (defn link-to-article [id text]
   (str "<a href=\"article?id=" id "\">" text "</a>"))
@@ -12,38 +13,41 @@
   (default-page
     {:title "Impressum"
      :text
-     (str "<h1>Impressum</h1><br />"
-          name "<br />"
-          street "<br />"
-          city "<br />"
-          phone "<br />"
-          email "<br />")}))
+     (html
+      [:h1 "Impressum" [:br]]
+      name [:br]
+      street [:br]
+      city [:br]
+      phone [:br]
+      email [:br])}))
 
 (defn present-blog [{:keys [title content]}]
   (default-page
     {:title "Blog"
      :text
-     (str "<h1>Blog</h1><br />"
-          "<h3>" title "</h3><br />"
-          "<p>" content "</p>")}))
+     (html
+      [:h1 "Blog" [:br]]
+      [:h3 title] [:br]
+      [:p content])}))
 
 (defn present-save [res]
   (default-page
     {:title "Save"
      :text
      (if (:success res)
-       (str "<h1>Save</h1><br />"
-            "<h3>saved successfully")
+       (html
+        [:h1 "Save" [:br]]
+        [:h3 "saved successfully"])
        (str "error"))}))
 
 (defn present-all-articles [res]
   (default-page
     {:title "Articles"
      :text
-     (str
-      "<h1>Articles</h1><br />"
+     (html
+      [:h1 "Articles" [:br]]
       (if (empty? res)
-        "<h3>No articles yet.</h3>"
+        [:h3 "No articles yet."]
         (apply str (map-indexed (fn [idx article]
                                   (link-to-article idx (:title article)))
                                 res))))}))
@@ -53,16 +57,17 @@
     {:title "Index"
      :text
      (str (apply str (map (fn [[title link]]
-                            (str "<a href=\"" link "\">" title "</a>"))
+                            (html [:a {:href link} title]))
                           res)))}))
 
 (defn present-edit-article [res]
   (default-page
     {:title "Edit Article"
      :text
-     (str "<h1>Edit Article</h1>"
-          "<form action=\"edit\" method=\"post\">"
-          "<input name=\"new-title\" type=\"textfield\" value=\"" (:title res) "\" /><br />"
-          "<textarea name=\"new-content\" cols=\"20\" rows=\"5\">" (:content res) "</textarea><br />"
-          "<input type=\"submit\" value=\"Update\" />"
-          "</form>")}))
+     (html
+      [:h1 "Edit Article"]
+      (form-to [:post "/edit"]
+               (hidden-field "id" (:id res))
+               (text-field "new-title" (:title res)) [:br]
+               (text-area  "new-content" (:content res)) [:br]
+               (submit-button "Update")))}))

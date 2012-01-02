@@ -31,8 +31,12 @@
 
 (defn get-article [article-id presenter]
   (presenter
-   (when (and (>= article-id 0) (< article-id (count-articles db)))
-     (retrieve-article db article-id))))
+   (when (and (>= article-id 0))
+     (if (< article-id (count-articles db))
+       (assoc (retrieve-article db article-id) :id article-id)
+       {:id (count-articles db)
+        :title ""
+        :content ""}))))
 
 (defn get-contact-information [presenter]
   (presenter
@@ -49,14 +53,16 @@
   (let [article-id (:id article)
         new-title (:title article)
         new-content (:content article)]
-   (if (empty? new-title)
-     (edit-article (assoc article :title (:title (retrieve-article db article-id))) presenter)
-     (if (empty? new-content)
-       (edit-article (assoc article :content (:content (retrieve-article db article-id))) presenter)
-       (do
-         (update-article db article-id new-title new-content)
-         (presenter {:title new-title
-                     :content new-content}))))))
+    (when-not (>= article-id (count-articles db))
+      (save-article article presenter))
+    (if (empty? new-title)
+      (edit-article (assoc article :title (:title (retrieve-article db article-id))) presenter)
+      (if (empty? new-content)
+        (edit-article (assoc article :content (:content (retrieve-article db article-id))) presenter)
+        (do
+          (update-article db article-id new-title new-content)
+          (presenter {:title new-title
+                      :content new-content}))))))
 
 (defn search-for-article [search-word presenter]
   (let [articles (retrieve-all-articles db)]

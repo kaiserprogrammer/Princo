@@ -25,7 +25,7 @@
             :presenter present-edit-article}})
 
 (defn edit-article-request [req]
-  {:id (get (:params req) "id")
+  {:id (Integer/parseInt (get (:params req) "id"))
    :title (get (:params req) "new-title")
    :content (get (:params req) "new-content")})
 

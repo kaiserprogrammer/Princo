@@ -44,7 +44,9 @@
     (is (re-find #"<a href=\"/link2\">Text2</a>" index-page))))
 
 (deftest present-edit-article-test
-  (let [edit (present-edit-article {:title "Title"
+  (let [edit (present-edit-article {:id 0
+                                    :title "Title"
                                     :content "content"})]
+    (is (re-find #"action=\"/edit\".*?name=\"id\".*?value=\"0\"" edit))
     (is (re-find #"<form.*?textarea.*?.*?submit" edit))
-    (is (re-find #"input.*?textfield.*?value=\"Title\"" edit))))
+    (is (re-find #"input.*?text.*?value=\"Title\"" edit))))
