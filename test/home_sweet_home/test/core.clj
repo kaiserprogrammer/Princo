@@ -27,7 +27,7 @@
          :email "juergenbickert@gmail.com")))
 
 (deftest blog-article-not-found
-  (is (not (get-article -1 present-return))))
+  (is (:id (get-article -1 present-return))))
 
 (deftest blog-articles-different
   (save-article {:title title :content content} present-return)
