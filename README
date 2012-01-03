@@ -46,10 +46,14 @@ Data: <Title> <Content>
 Use case: Change article
 ========================
 
+Primary Course:
 Data: <Title> <Content> <Article-id>
 1. User suplies above mentioned data to system
 2. System updates corresponding article with data
 
+Exceptional Course:
+2a. Article does not exist
+3a. System creates article supplied data.
 
 Use case: Search for an article
 ===============================
