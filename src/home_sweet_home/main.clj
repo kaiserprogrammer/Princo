@@ -9,7 +9,8 @@
 
 (def get-request-handlers
   {"/" {:controller (fn [req] {"Impressum" "/impressum"
-                              "Blog" "/blog"})
+                              "Blog" "/blog"
+                              "Create" "/edit"})
         :presenter present-index-page}
    "/impressum" {:interactor get-contact-information
                  :presenter present-contact-information}
