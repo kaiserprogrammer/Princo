@@ -49,16 +49,20 @@
       (presenter (interactor (controller req) db))
       (presenter (interactor db)))))
 
-(defn handler [req]
-  (if (not (or (get-request-handlers (:uri req))
-               (post-request-handlers (:uri req))))
-    (present-request-information req)
-    (if (= :post (:request-method req))
-      (handler-call (post-request-handlers (:uri req)) req)
-      (handler-call (get-request-handlers (:uri req)) req))))
+(defn choose-handler [{:keys [uri method]} ]
+  (if (not (or (get-request-handlers uri)
+               (post-request-handlers uri)))
+    {:presenter present-request-information}
+    (if (= :post method)
+      (post-request-handlers uri)
+      (get-request-handlers uri))))
+
+(defn handle [req]
+  (let [handler (choose-handler req)]
+    (handler-call handle req)))
 
 (def app
-  (-> #'handler
+  (-> #'handle
       (wrap-params)
       (wrap-reload '[home-sweet-home.main])
       (wrap-stacktrace)))
