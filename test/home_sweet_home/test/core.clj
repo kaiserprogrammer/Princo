@@ -21,7 +21,7 @@
 (use-fixtures :each setup-and-teardown)
 
 (deftest contact-information
-  (let [impressum (get-contact-information present-return db)]
+  (let [impressum (get-contact-information db)]
     (are [key value] (= value (key impressum))
          :name "Jürgen Bickert"
          :street "Grafenspitz 11"
@@ -30,81 +30,81 @@
          :email "juergenbickert@gmail.com")))
 
 (deftest blog-article-not-found
-  (is (:id (get-article -1 present-return db))))
+  (is (:id (get-article -1 db))))
 
 (deftest blog-articles-different
-  (save-article {:title title :content content} present-return db)
+  (save-article {:title title :content content} db)
   (save-article {:title (str title "2")
                  :content content}
-                present-return db)
-  (is (not (= (get-article 0 present-return db)
-             (get-article 1 present-return db)))))
+                db)
+  (is (not (= (get-article 0 db)
+             (get-article 1 db)))))
 
 (deftest save-new-blog-article
-  (save-article {:title title :content content} present-return db)
-  (let [blog (get-article 0 present-return db)]
+  (save-article {:title title :content content} db)
+  (let [blog (get-article 0 db)]
     (is (= title (:title blog)))
     (is (= content (:content blog)))))
 
 (deftest listing-all-articles
-  (save-article {:title (str title "1") :content content} present-return db)
-  (save-article {:title (str title "2") :content content} present-return db)
-  (save-article {:title (str title "3") :content content} present-return db)
-  (let [listing (list-all-articles present-return db)]
+  (save-article {:title (str title "1") :content content} db)
+  (save-article {:title (str title "2") :content content} db)
+  (save-article {:title (str title "3") :content content} db)
+  (let [listing (list-all-articles db)]
     (is (= (:title (listing 0)) "Title1"))
     (is (= (:title (listing 1)) "Title2"))))
 
 (deftest article-update-test
-  (save-article {:title "wrong" :content "wrong"} present-return db)
-  (edit-article {:id 0 :title title :content content} present-return db)
-  (let [article (get-article 0 present-return db)]
+  (save-article {:title "wrong" :content "wrong"} db)
+  (edit-article {:id 0 :title title :content content} db)
+  (let [article (get-article 0 db)]
     (is (= (:title article) title))
     (is (= (:content article) content))))
 
 (deftest article-update-test-with-missing-title
-  (save-article {:title "Title" :content "wrong"} present-return db)
-  (edit-article {:id 0 :title "" :content content} present-return db)
-  (let [article (get-article 0 present-return db)]
+  (save-article {:title "Title" :content "wrong"} db)
+  (edit-article {:id 0 :title "" :content content} db)
+  (let [article (get-article 0 db)]
     (is (= (:title article) title))
     (is (= (:content article) content))))
 
 (deftest article-update-test-with-missing-content
-  (save-article {:title "wrong" :content "content"} present-return db)
-  (edit-article {:id 0 :title title :content ""} present-return db)
-  (let [article (get-article 0 present-return db)]
+  (save-article {:title "wrong" :content "content"} db)
+  (edit-article {:id 0 :title title :content ""} db)
+  (let [article (get-article 0 db)]
     (is (= (:title article) title))
     (is (= (:content article) content))))
 
 (deftest article-update-test-with-missing-items
-  (save-article {:title title :content content} present-return db)
-  (edit-article {:id 0 :title "" :content ""} present-return db)
-  (let [article (get-article 0 present-return db)]
+  (save-article {:title title :content content} db)
+  (edit-article {:id 0 :title "" :content ""} db)
+  (let [article (get-article 0 db)]
     (is (= (:title article) title))
     (is (= (:content article) content))))
 
 (deftest search-for-one-matching-article-test
-  (save-article {:title "wrong" :content content} present-return db)
-  (save-article {:title title :content content} present-return db)
-  (let [articles (search-for-article title present-return db)]
+  (save-article {:title "wrong" :content content} db)
+  (save-article {:title title :content content} db)
+  (let [articles (search-for-article title db)]
     (is (= 1 (count articles)))
     (is (= 1 (:article-id (first articles))))
     (is (= title (:title (first articles))))
     (is (= content (:content (first articles))))))
 
 (deftest search-for-two-matching-articles-test
-  (save-article {:title "wrong" :content content} present-return db)
-  (save-article {:title title :content content} present-return db)
-  (save-article {:title (str title 2) :content (str content 2)} present-return db)
-  (let [articles (search-for-article title present-return db)]
+  (save-article {:title "wrong" :content content} db)
+  (save-article {:title title :content content} db)
+  (save-article {:title (str title 2) :content (str content 2)} db)
+  (let [articles (search-for-article title db)]
     (is (= 2 (count articles)))
     (is (= 1 (:article-id (first articles))))
     (is (= 2 (:article-id (second articles))))))
 
 (deftest search-for-words-matching-title-and-content
-  (save-article {:title "wrong" :content "wrong"} present-return db)
-  (save-article {:title "wrong" :content (str content title content)} present-return db)
-  (save-article {:title title :content "wrong"} present-return db)
-  (let [articles (search-for-article title present-return db)]
+  (save-article {:title "wrong" :content "wrong"} db)
+  (save-article {:title "wrong" :content (str content title content)} db)
+  (save-article {:title title :content "wrong"} db)
+  (let [articles (search-for-article title db)]
     (is (= 2 (count articles)))
     (is (= 1 (:article-id (first articles))))
     (is (= 2 (:article-id (second articles))))))

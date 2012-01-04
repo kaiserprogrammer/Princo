@@ -42,12 +42,12 @@
 (defn handler-call [handle req]
   (let [interactor (if-let [interactor (:interactor handle)]
                      interactor
-                     (fn [req presenter db] (presenter req)))
+                     (fn [req db] req))
         controller (:controller handle)
         presenter (:presenter handle)]
     (if controller
-      (interactor (controller req) presenter db)
-      (interactor presenter db))))
+      (presenter (interactor (controller req) db))
+      (presenter (interactor db)))))
 
 (defn handler [req]
   (if (not (or (get-request-handlers (:uri req))
