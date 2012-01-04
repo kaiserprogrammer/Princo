@@ -2,12 +2,20 @@
   (:use [hiccup core form-helpers]))
 
 (defn default-page [{:keys [title text]}]
-  (html [:html
-         [:title title]
-         [:body text]]))
+  { :status 200
+   :headers {}
+   :body
+   (html [:html
+          [:title title]
+          [:body text]])})
 
 (defn link-to-article [id text]
   (html [:a {:href (str "article?id=" id)} text]))
+
+(defn present-request-information [req]
+  {:status 200
+   :headers {"Content-type" "text/plain"}
+   :body (str req)})
 
 (defn present-contact-information [{:keys [name street city phone email]}]
   (default-page

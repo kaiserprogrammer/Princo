@@ -52,15 +52,10 @@
 (defn handler [req]
   (if (not (or (get-request-handlers (:uri req))
                (post-request-handlers (:uri req))))
-    {:status 200
-     :headers {"Content-type" "text/plain"}
-     :body (str req)}
-    {:status 200
-     :headers {}
-     :body
-     (if (= :post (:request-method req))
-       (handler-call (post-request-handlers (:uri req)) req)
-       (handler-call (get-request-handlers (:uri req)) req))}))
+    (present-request-information req)
+    (if (= :post (:request-method req))
+      (handler-call (post-request-handlers (:uri req)) req)
+      (handler-call (get-request-handlers (:uri req)) req))))
 
 (def app
   (-> #'handler
