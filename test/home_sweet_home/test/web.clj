@@ -52,3 +52,12 @@
     (is (re-find #"action=\"/edit\".*?name=\"id\".*?value=\"0\"" edit))
     (is (re-find #"<form.*?textarea.*?.*?submit" edit))
     (is (re-find #"input.*?text.*?value=\"Title\"" edit))))
+
+(deftest present-create-article-test
+  (let [create (:body (present-create-article {}))]
+    (are [to-find] (re-find (re-pattern to-find) create)
+         "<form.*action=\"/create\".*method=\"POST\""
+         "(?i)create article"
+         "<input.*?title.*?/>"
+         "<input.*?content.*?/>"
+         "(?i)<input.*?type=\"submit\".*?create.*?/>")))

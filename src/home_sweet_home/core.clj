@@ -38,7 +38,8 @@
           (edit-article (assoc article :content (:content current-article)) db)
           (do
             (update-article db article-id new-title new-content)
-            {:title new-title
+            {:id article-id
+             :title new-title
              :content new-content})))
       (save-article article db))))
 

@@ -2,6 +2,7 @@
   (:use home-sweet-home.core)
   (:use [home-sweet-home.web])
   (:use ring.adapter.jetty)
+  (:use [ring.util response])
   (:use [ring.middleware reload stacktrace params])
   (:import home_sweet_home.gateway.InMemoryDB))
 
@@ -10,7 +11,7 @@
 (def get-request-handlers
   {"/" {:controller (fn [req] {"Impressum" "/impressum"
                               "Blog" "/blog"
-                              "Create" "/edit"})
+                              "Create" "/create"})
         :presenter present-index-page}
    "/impressum" {:interactor get-contact-information
                  :presenter present-contact-information}
@@ -19,11 +20,8 @@
    "/article" {:interactor get-article
                :controller #(Integer/parseInt (get (:params %) "id"))
                :presenter present-blog}
-   "/save" {:interactor save-article
-            :controller (fn [req]
-                          {:title (get (:params req) "title")
-                           :content (get (:params req) "content")})
-            :presenter present-save}
+   "/create" {:interactor (fn [db] {})
+              :presenter present-create-article}
    "/edit" {:interactor get-article
             :controller #(Integer/parseInt (or (get (:params %) "id") "-1"))
             :presenter present-edit-article}})
@@ -34,17 +32,22 @@
    :content (get (:params req) "new-content")})
 
 (def post-request-handlers
-  {"/edit" {:interactor edit-article
+  {"/create" {:interactor save-article
+              :controller (fn [req]
+                          {:title (get (:params req) "title")
+                           :content (get (:params req) "content")})
+              :presenter present-save}
+   "/edit" {:interactor edit-article
             :controller edit-article-request
-            :presenter present-blog}})
+            :presenter (fn [res] (redirect (str "/article?id=" (:id res))))}})
 
 
-(defn handler-call [handle req]
-  (let [interactor (if-let [interactor (:interactor handle)]
+(defn handler-call [handler req]
+  (let [interactor (if-let [interactor (:interactor handler)]
                      interactor
                      (fn [req db] req))
-        controller (:controller handle)
-        presenter (:presenter handle)]
+        controller (:controller handler)
+        presenter (:presenter handler)]
     (if controller
       (presenter (interactor (controller req) db))
       (presenter (interactor db)))))
@@ -59,7 +62,7 @@
 
 (defn handle [req]
   (let [handler (choose-handler req)]
-    (handler-call handle req)))
+    (handler-call handler req)))
 
 (def app
   (-> #'handle

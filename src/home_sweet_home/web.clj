@@ -80,3 +80,14 @@
                (text-field "new-title" (:title res)) [:br]
                (text-area  "new-content" (:content res)) [:br]
                (submit-button "Update")))}))
+
+(defn present-create-article [res]
+  (default-page
+    {:title ""
+     :text
+     (html
+      [:h1 "Create Article"]
+      (form-to [:post "/create"]
+               (text-field "title") [:br]
+               (text-area "content") [:br]
+               (submit-button "Create")))}))
