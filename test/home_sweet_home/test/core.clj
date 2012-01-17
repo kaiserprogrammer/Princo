@@ -2,21 +2,37 @@
   (:use [home-sweet-home.core])
   (:use [home-sweet-home.gateway])
   (:import home_sweet_home.gateway.InMemoryDB)
+  (:import home_sweet_home.gateway.FileSystemDB)
+  (:import [java.io File])
   (:use [clojure.test]))
 
-(defn present-return [res] res)
-(def db (InMemoryDB. (atom [])))
+;; (def db (InMemoryDB. (atom [])))
 
-(def title "Title")
-(def content "content")
+;; (def title "Title")
+;; (def content "content")
 
-(defn clear-db []
-  (reset! (:blog db) []))
+;; (defn clear-db []
+;;   (reset! (:blog db) []))
+
+;; (defn setup-and-teardown [f]
+;;   (clear-db)
+;;   (f)
+;;   (clear-db))
+
+(def db-path (.getCanonicalPath (File. "testdb")))
+(def db (FileSystemDB. db-path))
+(defn create-dirs []
+  (.mkdir (File. db-path)))
+
+(defn delete-dirs []
+  (org.apache.commons.io.FileUtils/deleteDirectory (File. db-path)))
 
 (defn setup-and-teardown [f]
-  (clear-db)
+  (create-dirs)
   (f)
-  (clear-db))
+  (delete-dirs))
+
+
 
 (use-fixtures :each setup-and-teardown)
 

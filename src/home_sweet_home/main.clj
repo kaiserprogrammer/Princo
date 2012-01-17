@@ -4,9 +4,12 @@
   (:use ring.adapter.jetty)
   (:use [ring.util response])
   (:use [ring.middleware reload stacktrace params])
-  (:import home_sweet_home.gateway.InMemoryDB))
+  (:import home_sweet_home.gateway.FileSystemDB)
+  (:import home_sweet_home.gateway.InMemoryDB)
+  (:import [java.io File]))
 
-(def db (InMemoryDB. (atom [])))
+(def db-path (.getCanonicalPath (File. "db")))
+(def db (FileSystemDB. db-path))
 
 (def get-request-handlers
   {"/" {:controller (fn [req] {"Impressum" "/impressum"
