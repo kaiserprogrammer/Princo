@@ -43,20 +43,22 @@
 
 
 (defn handler-call [handler req]
-  (let [interactor (if-let [interactor (:interactor handler)]
-                     interactor
-                     (fn [req db] req))
-        controller (:controller handler)
-        presenter (:presenter handler)]
-    (if controller
-      (presenter (interactor (controller req) db))
-      (presenter (interactor db)))))
+  (if-not (or (:interactor handler) (:controller handler))
+    ((:presenter handler) req)
+    (let [interactor (if-let [interactor (:interactor handler)]
+                       interactor
+                       (fn [req db] req))
+          controller (:controller handler)
+          presenter (:presenter handler)]
+      (if controller
+        (presenter (interactor (controller req) db))
+        (presenter (interactor db))))))
 
-(defn choose-handler [{:keys [uri method]} ]
+(defn choose-handler [{:keys [uri request-method]} ]
   (if (not (or (get-request-handlers uri)
                (post-request-handlers uri)))
     {:presenter present-request-information}
-    (if (= :post method)
+    (if (= :post request-method)
       (post-request-handlers uri)
       (get-request-handlers uri))))
 
