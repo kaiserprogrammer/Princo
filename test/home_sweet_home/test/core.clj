@@ -8,8 +8,8 @@
 
 ;; (def db (InMemoryDB. (atom [])))
 
-;; (def title "Title")
-;; (def content "content")
+(def title "Title")
+(def content "content")
 
 ;; (defn clear-db []
 ;;   (reset! (:blog db) []))
