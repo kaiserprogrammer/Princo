@@ -1,4 +1,5 @@
 (ns home-sweet-home.main
+  (:gen-class)
   (:use home-sweet-home.core)
   (:use [home-sweet-home.web])
   (:use ring.adapter.jetty)
@@ -74,3 +75,8 @@
       (wrap-params)
       (wrap-reload '[home-sweet-home.main])
       (wrap-stacktrace)))
+
+
+(defn -main [& args]
+  (.mkdir (File. "db"))
+  (run-jetty app {:port (Integer/parseInt (or (System/getenv "PORT") "8080"))}))

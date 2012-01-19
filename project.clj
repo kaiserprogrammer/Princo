@@ -8,4 +8,5 @@
                  [clj-stacktrace "0.2.4"]
                  [commons-io/commons-io "2.1"]]
   :dev-dependencies [[clj-webdriver "0.5.0-alpha1"]
-                     [ring/ring-devel "1.0.0"]])
+                     [ring/ring-devel "1.0.0"]]
+  :main home-sweet-home.main)
