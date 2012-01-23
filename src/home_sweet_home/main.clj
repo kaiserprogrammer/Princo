@@ -1,6 +1,6 @@
 (ns home-sweet-home.main
   (:gen-class)
-  (:use [home-sweet-home.routing])
+  (:use [home-sweet-home.routing :as routing])
   (:use ring.adapter.jetty)
   (:use [ring.util response])
   (:use [ring.middleware reload stacktrace params])
@@ -11,16 +11,14 @@
 (def db-path (.getCanonicalPath (File. "db")))
 (def db (FileSystemDB. db-path))
 
-(defn handle [req]
-  (let [handler (choose-handler req)]
-    (handler-call handler req db)))
+(defn web-handler [req]
+  (routing/handle req db))
 
 (def app
-  (-> #'handle
+  (-> #'web-handler
       (wrap-params)
       (wrap-reload '[home-sweet-home.main])
       (wrap-stacktrace)))
-
 
 (defn -main [& args]
   (.mkdir (File. "db"))
