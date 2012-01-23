@@ -1,5 +1,6 @@
 (ns home-sweet-home.web
-  (:use [hiccup core form-helpers]))
+  (:use [hiccup core form-helpers])
+  (:use [ring.util response]))
 
 (defn default-page [{:keys [title text]}]
   { :status 200
@@ -38,7 +39,7 @@
       [:h3 title] [:br]
       [:p content])}))
 
-(defn present-save [{success :success} res]
+(defn present-save [{:keys [success]}]
   (default-page
     {:title "Save"
      :text
@@ -69,7 +70,7 @@
                                   [:br]))
                           res)))}))
 
-(defn present-edit-article [{:keys [id title content]} res]
+(defn present-edit-article [{:keys [id title content]}]
   (default-page
     {:title "Edit Article"
      :text
@@ -91,3 +92,6 @@
                (text-field "title") [:br]
                (text-area "content") [:br]
                (submit-button "Create")))}))
+
+(defn redirect-to-article [{:keys [id]}]
+  (redirect (str "/article?id=" id)))
