@@ -42,18 +42,15 @@
    :default {:presenter present-request-information}})
 
 (defn handler-call [handler req db]
-  (if-not (or (:interactor handler) (:controller handler))
-    ((:presenter handler) req)
-    (let [interactor (if-let [interactor (:interactor handler)]
-                       interactor
-                       (fn [req db] req))
-          controller (:controller handler)
-          presenter (:presenter handler)]
-      (if controller
-        (presenter (interactor (controller req) db))
-        (presenter (interactor db))))))
-
-(defn handle [req db request-handlers & args]
-  (if-let [handler (or (request-handlers (vec (map #(req %) args))) (:default request-handlers))]
-    (handler-call handler req db)
-    (throw (Exception. "No Handler found"))))
+  (if (nil? handler)
+    (throw (Exception. "No Handler found"))
+    (if-not (or (:interactor handler) (:controller handler))
+      ((:presenter handler) req)
+      (let [interactor (if-let [interactor (:interactor handler)]
+                         interactor
+                         (fn [req db] req))
+            controller (:controller handler)
+            presenter (:presenter handler)]
+        (if controller
+          (presenter (interactor (controller req) db))
+          (presenter (interactor db)))))))
