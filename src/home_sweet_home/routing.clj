@@ -38,7 +38,8 @@
    ["/edit" :post]
    {:interactor edit-article
     :controller edit-article-request
-    :presenter redirect-to-article}})
+    :presenter redirect-to-article}
+   :default {:presenter present-request-information}})
 
 (defn handler-call [handler req db]
   (if-not (or (:interactor handler) (:controller handler))
@@ -53,6 +54,6 @@
         (presenter (interactor db))))))
 
 (defn handle [req db request-handlers & args]
-  (if-let [handler (request-handlers (vec (map #(req %) args)))]
+  (if-let [handler (or (request-handlers (vec (map #(req %) args))) (:default request-handlers))]
     (handler-call handler req db)
-    (handler-call {:presenter present-request-information} req db)))
+    (throw (Exception. "No Handler found"))))
