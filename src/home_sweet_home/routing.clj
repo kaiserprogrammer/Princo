@@ -52,7 +52,7 @@
         (presenter (interactor (controller req) db))
         (presenter (interactor db))))))
 
-(defn handle [req db request-handlers]
-  (if-let [handler (request-handlers [(:uri req) (:request-method req)])]
+(defn handle [req db request-handlers & args]
+  (if-let [handler (request-handlers (vec (map #(req %) args)))]
     (handler-call handler req db)
     (handler-call {:presenter present-request-information} req db)))
