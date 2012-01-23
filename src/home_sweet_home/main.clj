@@ -24,8 +24,7 @@
    "/article" {:interactor get-article
                :controller #(Integer/parseInt (get (:params %) "id"))
                :presenter present-blog}
-   "/create" {:interactor (fn [db] {})
-              :presenter present-create-article}
+   "/create" {:presenter present-create-article}
    "/edit" {:interactor get-article
             :controller #(Integer/parseInt (or (get (:params %) "id") "-1"))
             :presenter present-edit-article}})
