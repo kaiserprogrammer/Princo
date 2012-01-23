@@ -40,12 +40,6 @@
     :controller edit-article-request
     :presenter redirect-to-article}})
 
-(defn choose-handler [{:keys [uri request-method]} request-handlers]
-  (let [search [uri request-method]]
-    (if-let [handler (request-handlers search)]
-      handler
-      {:presenter present-request-information})))
-
 (defn handler-call [handler req db]
   (if-not (or (:interactor handler) (:controller handler))
     ((:presenter handler) req)
@@ -58,6 +52,7 @@
         (presenter (interactor (controller req) db))
         (presenter (interactor db))))))
 
-(defn handle [req db]
-  (let [handler (choose-handler req request-handlers)]
-    (handler-call handler req db)))
+(defn handle [req db request-handlers]
+  (if-let [handler (request-handlers [(:uri req) (:request-method req)])]
+    (handler-call handler req db)
+    (handler-call {:presenter present-request-information} req db)))

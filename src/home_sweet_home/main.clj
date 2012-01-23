@@ -12,7 +12,7 @@
 (def db (FileSystemDB. db-path))
 
 (defn web-handler [req]
-  (routing/handle req db))
+  (routing/handle req db routing/request-handlers))
 
 (def app
   (-> #'web-handler

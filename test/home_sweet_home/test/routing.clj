@@ -6,6 +6,4 @@
                    :controller :control
                    :presenter :present})
 
-(deftest choosing-handler
-  (is (= :test (choose-handler {:uri "uri" :request-method :get} {["uri" :get] :test})))
-  (is (= test-handler (choose-handler {:uri "/uri" :request-method :post} {["/uri" :post] test-handler}))))
+
