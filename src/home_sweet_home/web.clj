@@ -38,11 +38,11 @@
       [:h3 title] [:br]
       [:p content])}))
 
-(defn present-save [res]
+(defn present-save [{success :success} res]
   (default-page
     {:title "Save"
      :text
-     (if (:success res)
+     (if success
        (html
         [:h1 "Save" [:br]]
         [:h3 "saved successfully"])
@@ -69,16 +69,16 @@
                                   [:br]))
                           res)))}))
 
-(defn present-edit-article [res]
+(defn present-edit-article [{:keys [id title content]} res]
   (default-page
     {:title "Edit Article"
      :text
      (html
       [:h1 "Edit Article"]
       (form-to [:post "/edit"]
-               (hidden-field "id" (:id res))
-               (text-field "new-title" (:title res)) [:br]
-               (text-area  "new-content" (:content res)) [:br]
+               (hidden-field "id" id)
+               (text-field "new-title" title) [:br]
+               (text-area  "new-content" content) [:br]
                (submit-button "Update")))}))
 
 (defn present-create-article [res]
