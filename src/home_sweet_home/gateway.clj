@@ -47,7 +47,7 @@
     (reduce (fn [res id]
               (conj res (retrieve-article this id)))
             []
-            (seq (.list (File. path)))))
+            (sort (map read-string (seq (.list (File. path)))))))
 
   (update-article [this id title content]
     (spit (File. path (str id))
