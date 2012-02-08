@@ -3,15 +3,15 @@
   (:use [ring.util response]))
 
 (defn default-page [{:keys [title text]}]
-  { :status 200
+  {:status 200
    :headers {}
    :body
    (html [:html
           [:title title]
           [:body text]])})
 
-(defn link-to-article [id text]
-  (html [:a {:href (str "article?id=" id)} text]))
+(defn link-to-article [{:keys [id title]}]
+  [:a {:href (str "article?id=" id)} title])
 
 (defn present-request-information [req]
   {:status 200
@@ -49,17 +49,26 @@
         [:h3 "saved successfully"])
        (str "error"))}))
 
-(defn present-all-articles [res]
+(defn prepare-view-all-articles [res]
+  (let [articles (map-indexed (fn [idx article]
+                                (assoc article :id idx))
+                              res)]
+    {:articles articles :title "Articles"}))
+
+(defn view-all-articles [{:keys [title articles]}]
   (default-page
-    {:title "Articles"
+    {:title title
      :text
      (html
       [:h1 "Articles" [:br]]
-      (if (empty? res)
+      (if (empty? articles)
         [:h3 "No articles yet."]
-        (apply str (map-indexed (fn [idx article]
-                                  (html (link-to-article idx (:title article)) [:br]))
-                                res))))}))
+        (apply str (map (fn [article]
+                          (html (link-to-article article) [:br]))
+                        articles))))}))
+
+(defn present-all-articles [res]
+  (view-all-articles (prepare-view-all-articles res)))
 
 (defn present-index-page [res]
   (default-page

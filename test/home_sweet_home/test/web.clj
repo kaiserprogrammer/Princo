@@ -26,15 +26,15 @@
   (is (re-find #"success" (:body (present-save {:success true})))))
 
 (deftest present-list-all-articles
-  (is (re-find #"(?i)no articles" (:body (present-all-articles []))))
-  (let [listing (:body
-                 (present-all-articles [{:title "Title" :content "blank"}]))]
-    (is (re-find #"<a href=\"article\?id=0\">Title</a>" listing)))
-  (let [listing (:body
-                 (present-all-articles [{:title "Title" :content "blank"}
-                                        {:title "Title2" :content "blank"}]))]
-    (is (re-find #"<a href=\"article\?id=0\">Title</a>" listing))
-    (is (re-find #"<a href=\"article\?id=1\">Title2</a>" listing))))
+  (is (empty? (:articles (prepare-view-all-articles []))))
+  (let [listing
+        (prepare-view-all-articles [{:title "Title" :content "blank"}])]
+    (is (= "Title" (:title (first (:articles listing))))))
+  (let [listing
+        (prepare-view-all-articles [{:title "Title" :content "blank"}
+                               {:title "Title2" :content "blank"}])]
+    (is (= "Title" (:title (first (:articles listing)))))
+    (is (= "Title2" (:title (second (:articles listing)))))))
 
 (deftest present-index-page-test
   (is (re-find #"(?i)index" (:body (present-index-page {}))))
