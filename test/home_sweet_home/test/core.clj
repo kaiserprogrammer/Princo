@@ -46,7 +46,7 @@
          :email "juergenbickert@gmail.com")))
 
 (deftest blog-article-not-found
-  (is (= {} (get-article -1 db))))
+  (is (= nil (get-article -1 db))))
 
 (deftest blog-articles-different
   (save-article {:title title :content content} db)
@@ -70,10 +70,15 @@
     (is (= (:title (listing 0)) "Title1"))
     (is (= (:title (listing 1)) "Title2"))))
 
+(deftest article-update-non-existing
+  (is (= nil (edit-article {:id 10 :title title :content content} db))))
+
+
 (deftest article-update-test
   (save-article {:title "wrong" :content "wrong"} db)
-  (edit-article {:id 0 :title title :content content} db)
-  (let [article (get-article 0 db)]
+  (let [ret-article (edit-article {:id 0 :title title :content content} db)
+        article (get-article 0 db)]
+    (is (= ret-article article))
     (is (= (:title article) title))
     (is (= (:content article) content))))
 

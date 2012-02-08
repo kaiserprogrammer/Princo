@@ -12,8 +12,7 @@
 
 (defn get-article [article-id db]
   (if-let [article (retrieve-article db article-id)]
-    (assoc article :id article-id)
-    {}))
+    (assoc article :id article-id)))
 
 (defn get-contact-information [db]
   {:name "Jürgen Bickert"
@@ -25,18 +24,17 @@
 (defn list-all-articles [db]
   (retrieve-all-articles db))
 
-(defn edit-article [article db]
-  (let [article-id (:id article)]
-    (if-let [current-article (retrieve-article db article-id)]
-      (let [new-title (first (filter (complement empty?)
-                                     [(:title article) (:title current-article)]))
-            new-content (first (filter (complement empty?)
-                                       [(:content article) (:content current-article)]))]
-       (do
-         (update-article db article-id new-title new-content)
-         {:id article-id
-          :title new-title
-          :content new-content})))))
+(defn edit-article [{:keys [id title content]} db]
+  (if-let [current-article (retrieve-article db id)]
+    (let [new-title (first (remove empty?
+                                   [title (:title current-article)]))
+          new-content (first (remove empty?
+                                     [content (:content current-article)]))]
+      (do
+        (update-article db id new-title new-content)
+        {:id id
+         :title new-title
+         :content new-content}))))
 
 (defn search-for-article [search-word db]
   (let [articles (retrieve-all-articles db)]
